@@ -1,4 +1,5 @@
-﻿using DemoDataAccessLayer.Data;
+﻿using DemoBusinessLayer.Interfaces;
+using DemoDataAccessLayer.Data;
 using DemoDataAccessLayer.Models;
 using System;
 using System.Collections.Generic;
@@ -8,34 +9,13 @@ using System.Threading.Tasks;
 
 namespace DemoBusinessLayer.Repositories
 {
-    public class DepartmentRepository : IDepartmentRepository
+    public class DepartmentRepository : GenericRepository<Department> , IDepartmentRepository
 
     {
-        private readonly DataContext _dataContext;
-        public DepartmentRepository(DataContext dataContext)
+        public DepartmentRepository(DataContext dataContext) : base(dataContext)
         {
-            _dataContext = dataContext;
-        }
-        public Department? Get(int id) => _dataContext.Departments.Find(id);
 
-        public IEnumerable<Department> GetAll() => _dataContext.Departments.ToList();
-
-        public int Update(Department entitiy)
-        {
-            _dataContext.Departments.Update(entitiy);
-            return _dataContext.SaveChanges();
         }
 
-        public int Create(Department entitiy)
-        {
-            _dataContext.Departments.Add(entitiy);
-            return _dataContext.SaveChanges();
-        }
-
-        public int Delete(Department entitiy)
-        {
-            _dataContext.Departments.Remove(entitiy);
-            return _dataContext.SaveChanges();
-        }
     }
 }

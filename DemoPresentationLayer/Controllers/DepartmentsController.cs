@@ -1,4 +1,4 @@
-﻿using DemoBusinessLayer.Repositories;
+﻿using DemoBusinessLayer.Interfaces;
 using DemoDataAccessLayer.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -29,24 +29,11 @@ namespace DemoPresentationLayer.Controllers
                 _departmentRepository.Create(department);
             return RedirectToAction(nameof(Index));
         }
-        public IActionResult Details(int? id)
-        {
-            if(!id.HasValue)return BadRequest();
-            var department=_departmentRepository.Get(id.Value);
+        public IActionResult Details(int? id)=>DepartmentControllerHandler(id,nameof(Details));
 
-            if (id==null) return NotFound();
-            return View(department);
-        }
+
+        public IActionResult Edit(int? id) => DepartmentControllerHandler(id,nameof(Edit));
        
-        public IActionResult Edit(int? id)
-        {
-            if (!id.HasValue) return BadRequest();
-            var department = _departmentRepository.Get(id.Value);
-
-            if (id == null) return NotFound();
-            return View(department);
-
-        }
         [HttpPost]
         public IActionResult Edit([FromRoute]int id, Department department)
         {
@@ -67,27 +54,37 @@ namespace DemoPresentationLayer.Controllers
             return View(department);
 
         }
-        public IActionResult Delete(int? id)
-        {
-            
-                if (!id.HasValue) return BadRequest();
-                var department = _departmentRepository.Get(id.Value);
+        public IActionResult Delete(int? id) => DepartmentControllerHandler(id,nameof(Delete));
 
-                if (id == null) return NotFound();
+        [ValidateAntiForgeryToken]
+        [HttpPost, ActionName("Delete")]
+        public IActionResult ConfirmDelete([FromRoute] int? id)
+        {
+            if (!id.HasValue) return BadRequest();
+            var department = _departmentRepository.Get(id.Value);
+
+            if (department is null) return NotFound();
+            try
+            {
+                _departmentRepository.Delete(department);
+                return RedirectToAction(nameof(Index));
+
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", ex.Message);
+            }
             return View(department);
         }
-        [HttpPost, ActionName("Delete")]
-        public IActionResult Delete([FromRoute] int id, Department department)
+        private IActionResult DepartmentControllerHandler(int? id,string ViewName)
         {
-            if (id != department.Id) return BadRequest();
-            
-               
-                    _departmentRepository.Delete(department);
-                    return RedirectToAction(nameof(Index));
+            if (!id.HasValue) return BadRequest();
+            var department = _departmentRepository.Get(id.Value);
 
-                
-
+            if (id == null) return NotFound();
+            return View(ViewName,department);
         }
+
 
     }
 }
