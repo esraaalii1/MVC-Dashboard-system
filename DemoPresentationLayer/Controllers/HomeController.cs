@@ -1,4 +1,4 @@
-using DemoPresentationLayer.Models;
+using DemoPresentationLayer.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 

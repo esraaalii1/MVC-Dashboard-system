@@ -2,6 +2,7 @@ using DemoBusinessLayer.Interfaces;
 using DemoBusinessLayer.Repositories;
 using DemoDataAccessLayer.Data;
 using Microsoft.EntityFrameworkCore;
+using System.Reflection;
 
 namespace DemoPresentationLayer
 {
@@ -12,12 +13,14 @@ namespace DemoPresentationLayer
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
-            builder.Services.AddControllersWithViews();
+            builder.Services.AddControllersWithViews().AddRazorRuntimeCompilation();
             builder.Services.AddDbContext<DataContext>(options => {
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
             });
             builder.Services.AddScoped<IDepartmentRepository, DepartmentRepository>();
             builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
+            builder.Services.AddScoped<IUnitOfWork,UnitOfWork>();
+            builder.Services.AddAutoMapper(typeof(Program).Assembly);
 
 
             var app = builder.Build();

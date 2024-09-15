@@ -17,5 +17,7 @@ namespace DemoDataAccessLayer.Models
         [Display(Name ="Created At")]
         public DateTime DateOfCreation { get; set; }
 
+        public ICollection<Employee> Employees { get; set; }=new List<Employee>();
+
     }
 }

@@ -21,22 +21,10 @@ namespace DemoBusinessLayer.Repositories
 
         public IEnumerable<TEntity> GetAll() => _dataContext.Set<TEntity>().ToList();
 
-        public int Update(TEntity entitiy)
-        {
-            _dataContext.Set<TEntity>().Update(entitiy);
-            return _dataContext.SaveChanges();
-        }
+        public void Update(TEntity entitiy) => _dataContext.Set<TEntity>().Update(entitiy);
 
-        public int Create(TEntity entitiy)
-        {
-            _dataContext.Set<TEntity>().Add(entitiy);
-            return _dataContext.SaveChanges();
-        }
+        public void Create(TEntity entitiy) => _dataContext.Set<TEntity>().Add(entitiy);
 
-        public int Delete(TEntity entitiy)
-        {
-            _dataContext.Set<TEntity>().Remove(entitiy);
-            return _dataContext.SaveChanges();
-        }
+        public void Delete(TEntity entitiy) => _dataContext.Set<TEntity>().Remove(entitiy);
     }
 }

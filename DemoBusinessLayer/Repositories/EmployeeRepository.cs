@@ -1,6 +1,7 @@
 ﻿using DemoBusinessLayer.Interfaces;
 using DemoDataAccessLayer.Data;
 using DemoDataAccessLayer.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,10 +16,14 @@ namespace DemoBusinessLayer.Repositories
         {
             
         }
-
-        public IEnumerable<Employee> Get(string Address)
+        public IEnumerable<Employee> SearchByName(string Name)
         {
-           return _dataContext.Set<Employee>().Where(e=>e.Address.ToLower() == Address.ToLower()).ToList();    
+           return _dataContext.Set<Employee>().Where(e=>e.Name.ToLower().Contains( Name.ToLower())).Include(e=>e.Department).ToList();    
+        }
+
+        public IEnumerable<Employee> GetWithDepartment()
+        {
+            return _dataContext.Employees.Include(e => e.Department).ToList();
         }
     }
 }
