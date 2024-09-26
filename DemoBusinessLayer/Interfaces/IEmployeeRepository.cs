@@ -9,8 +9,8 @@ namespace DemoBusinessLayer.Interfaces
 {
     public interface IEmployeeRepository :IGenericRepository<Employee>
     {
-        public IEnumerable<Employee> SearchByName(string Name);
-        public IEnumerable<Employee> GetWithDepartment();
+        public Task<IEnumerable<Employee>> GetAllAsync(string Name);
+        public Task<IEnumerable<Employee>> GetWithDepartmentAsync();
 
 
     }

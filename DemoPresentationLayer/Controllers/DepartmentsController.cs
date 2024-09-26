@@ -15,7 +15,7 @@ namespace DemoPresentationLayer.Controllers
 
         public IActionResult Index()
         {
-            var departments=_departmentRepository.GetAll();
+            var departments=_departmentRepository.GetAllAsync();
             return View(departments);
         }
         public IActionResult Create()
@@ -23,16 +23,16 @@ namespace DemoPresentationLayer.Controllers
             return View();
         }
         [HttpPost]
-        public IActionResult Create(Department department)
+        public async Task<IActionResult> Create(Department department)
         {
             if(!ModelState.IsValid) return View(department);
-                _departmentRepository.Create(department);
+               await _departmentRepository.AddAsync(department);
             return RedirectToAction(nameof(Index));
         }
-        public IActionResult Details(int? id)=>DepartmentControllerHandler(id,nameof(Details));
+        public async Task<IActionResult> Details(int? id) => await DepartmentControllerHandler(id, nameof(Details));
 
 
-        public IActionResult Edit(int? id) => DepartmentControllerHandler(id,nameof(Edit));
+        public async Task<IActionResult> Edit(int? id) => await DepartmentControllerHandler(id, nameof(Edit));
        
         [HttpPost]
         public IActionResult Edit([FromRoute]int id, Department department)
@@ -54,14 +54,14 @@ namespace DemoPresentationLayer.Controllers
             return View(department);
 
         }
-        public IActionResult Delete(int? id) => DepartmentControllerHandler(id,nameof(Delete));
+        public async Task<IActionResult> Delete(int? id) => await DepartmentControllerHandler(id,nameof(Delete));
 
         [ValidateAntiForgeryToken]
         [HttpPost, ActionName("Delete")]
-        public IActionResult ConfirmDelete([FromRoute] int? id)
+        public async Task<IActionResult> ConfirmDelete([FromRoute] int? id)
         {
             if (!id.HasValue) return BadRequest();
-            var department = _departmentRepository.Get(id.Value);
+            var department = await _departmentRepository.GetAsync(id.Value);
 
             if (department is null) return NotFound();
             try
@@ -76,10 +76,10 @@ namespace DemoPresentationLayer.Controllers
             }
             return View(department);
         }
-        private IActionResult DepartmentControllerHandler(int? id,string ViewName)
+        private async Task<IActionResult> DepartmentControllerHandler(int? id,string ViewName)
         {
             if (!id.HasValue) return BadRequest();
-            var department = _departmentRepository.Get(id.Value);
+            var department = await _departmentRepository.GetAsync(id.Value);
 
             if (id == null) return NotFound();
             return View(ViewName,department);

@@ -1,6 +1,8 @@
 using DemoBusinessLayer.Interfaces;
 using DemoBusinessLayer.Repositories;
 using DemoDataAccessLayer.Data;
+using DemoDataAccessLayer.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 
@@ -17,6 +19,7 @@ namespace DemoPresentationLayer
             builder.Services.AddDbContext<DataContext>(options => {
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
             });
+            builder.Services.AddIdentity<ApplicationUser,IdentityRole>().AddEntityFrameworkStores<DataContext>().AddDefaultTokenProviders();
             builder.Services.AddScoped<IDepartmentRepository, DepartmentRepository>();
             builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
             builder.Services.AddScoped<IUnitOfWork,UnitOfWork>();

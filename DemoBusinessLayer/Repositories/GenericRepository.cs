@@ -13,17 +13,18 @@ namespace DemoBusinessLayer.Repositories
     public class GenericRepository<TEntity> :IGenericRepository<TEntity> where TEntity : class
     {
         protected readonly DataContext _dataContext;
+
         public GenericRepository(DataContext dataContext)
         {
             _dataContext = dataContext;
         }
-        public TEntity? Get(int id) => _dataContext.Set<TEntity>().Find(id);
+        public async Task<TEntity?> GetAsync(int id) => await _dataContext.Set<TEntity>().FindAsync(id);
 
-        public IEnumerable<TEntity> GetAll() => _dataContext.Set<TEntity>().ToList();
+        public async Task<IEnumerable<TEntity>> GetAllAsync() => await _dataContext.Set<TEntity>().ToListAsync();
 
         public void Update(TEntity entitiy) => _dataContext.Set<TEntity>().Update(entitiy);
 
-        public void Create(TEntity entitiy) => _dataContext.Set<TEntity>().Add(entitiy);
+        public async Task AddAsync(TEntity entitiy) => await _dataContext.Set<TEntity>().AddAsync(entitiy);
 
         public void Delete(TEntity entitiy) => _dataContext.Set<TEntity>().Remove(entitiy);
     }

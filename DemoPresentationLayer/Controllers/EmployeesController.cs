@@ -4,12 +4,14 @@ using DemoBusinessLayer.Interfaces;
 using DemoBusinessLayer.Repositories;
 using DemoDataAccessLayer.Models;
 using DemoPresentationLayer.Utilities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 
 namespace DemoPresentationLayer.Controllers
 {
+    [Authorize]
     public class EmployeesController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -21,7 +23,8 @@ namespace DemoPresentationLayer.Controllers
             _Mapper = Mapper;
         }
 
-        public IActionResult Index(string? SearchValue)
+        [AllowAnonymous]
+        public async Task<IActionResult> Index(string? SearchValue)
         {
             //ViewData["message"] = new Employee { Name = "salma" };
             //ViewData["message"] ="hello from view data;
@@ -29,41 +32,41 @@ namespace DemoPresentationLayer.Controllers
             var Employees=Enumerable.Empty<Employee>();
             if (string.IsNullOrWhiteSpace(SearchValue))
             {
-                 Employees = _unitOfWork.Employees.GetWithDepartment();
+                 Employees =await _unitOfWork.Employees.GetWithDepartmentAsync();
             }
-            else Employees=_unitOfWork.Employees.SearchByName(SearchValue);
+            else Employees= await _unitOfWork.Employees.GetAllAsync(SearchValue);
             var employeeVM = _Mapper.Map<IEnumerable<Employee>, IEnumerable<EmployeeVM>>(Employees);
 
             return View(employeeVM);
         }
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {   
-            var departments = _unitOfWork.Departments.GetAll();
+            var departments =await _unitOfWork.Departments.GetAllAsync();
             SelectList listItem = new SelectList(departments,"Id","Name");
             ViewBag.Departments = listItem;
             return View();
 
         }
         [HttpPost]
-        public IActionResult Create(EmployeeVM employeeVM)
+        public async Task<IActionResult> Create(EmployeeVM employeeVM)
         {
             if (!ModelState.IsValid) return View(employeeVM);//server side validation
             if (employeeVM.Image is not null)
-                employeeVM.ImageName = DocumentSetting.UploadFile(employeeVM.Image, "Images");
+                employeeVM.ImageName = await DocumentSetting.UploadFileAsync(employeeVM.Image, "Images");
             var employee = _Mapper.Map<EmployeeVM, Employee>(employeeVM);
-            _unitOfWork.Employees.Create(employee);
-            if (_unitOfWork.SaveChanges()>0)
+            await _unitOfWork.Employees.AddAsync(employee);
+            if ( await _unitOfWork.SaveChangesAsync()>0)
                 TempData["Message"] = "Employee created successfully";
 
             return RedirectToAction(nameof(Index));
         }
-        public IActionResult Details(int? id) => EmployeeControllerHandler(id, nameof(Details));
+        public async Task<IActionResult> Details(int? id) => await EmployeeControllerHandler(id, nameof(Details));
 
 
-        public IActionResult Edit(int? id) => EmployeeControllerHandler(id, nameof(Edit));
+        public async Task<IActionResult> Edit(int? id) =>await EmployeeControllerHandler(id, nameof(Edit));
 
         [HttpPost]
-        public IActionResult Edit([FromRoute] int id, EmployeeVM employeeVM)
+        public async Task<IActionResult> Edit([FromRoute] int id, EmployeeVM employeeVM)
         {
             if (id != employeeVM.Id) return BadRequest();
             if (ModelState.IsValid)
@@ -71,10 +74,10 @@ namespace DemoPresentationLayer.Controllers
                 try
                 {
                     if (employeeVM.Image is not null)
-                        employeeVM.ImageName = DocumentSetting.UploadFile(employeeVM.Image, "Images");
+                        employeeVM.ImageName =await DocumentSetting.UploadFileAsync(employeeVM.Image, "Images");
                     var employee=_Mapper.Map<Employee>(employeeVM);
                     _unitOfWork.Employees.Update(employee);
-                    if (_unitOfWork.SaveChanges() > 0)
+                    if (await _unitOfWork.SaveChangesAsync() > 0)
                     
                         TempData["Message"] = "Employee updated successfully";
                     return RedirectToAction(nameof(Index));
@@ -87,20 +90,20 @@ namespace DemoPresentationLayer.Controllers
             return View(employeeVM);
 
         }
-        public IActionResult Delete(int? id) => EmployeeControllerHandler(id, nameof(Delete));
+        public async Task<IActionResult> Delete(int? id) => await EmployeeControllerHandler(id, nameof(Delete));
 
         [ValidateAntiForgeryToken]
         [HttpPost, ActionName("Delete")]
-        public IActionResult ConfirmDelete([FromRoute] int? id)
+        public async Task<IActionResult> ConfirmDelete([FromRoute] int? id)
         {
             if (!id.HasValue) return BadRequest();
-            var employee = _unitOfWork.Employees.Get(id.Value);
+            var employee = await _unitOfWork.Employees.GetAsync(id.Value);
 
             if (employee is null) return NotFound();
             try
             {
                 _unitOfWork.Employees.Delete(employee);
-                if(_unitOfWork.SaveChanges()>0 && employee.ImageName is not null)
+                if(await _unitOfWork.SaveChangesAsync()>0 && employee.ImageName is not null)
                     DocumentSetting.DeleteFile("Images",employee.ImageName);
                 return RedirectToAction(nameof(Index));
 
@@ -111,16 +114,16 @@ namespace DemoPresentationLayer.Controllers
             }
             return View(employee);
         }
-        private IActionResult EmployeeControllerHandler(int? id, string ViewName)
+        private async Task<IActionResult> EmployeeControllerHandler(int? id, string ViewName)
         {
             if (ViewName == nameof(Edit))
             {
-                var departments = _unitOfWork.Departments.GetAll();
+                var departments =await _unitOfWork.Departments.GetAllAsync();
                 SelectList listItem = new SelectList(departments, "Id", "Name");
                 ViewBag.Departments = listItem;
             }
             if (!id.HasValue) return BadRequest();
-            var employee = _unitOfWork.Employees.Get(id.Value);
+            var employee = await _unitOfWork.Employees.GetAsync(id.Value);
 
             if (id == null) return NotFound();
             var employeeVM=_Mapper.Map<EmployeeVM>(employee);

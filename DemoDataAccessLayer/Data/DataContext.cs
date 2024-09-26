@@ -1,4 +1,5 @@
-﻿using DemoDataAccessLayer.Models;
+﻿global using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using DemoDataAccessLayer.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -8,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace DemoDataAccessLayer.Data
 {
-    public class DataContext : DbContext
+    public class DataContext : IdentityDbContext<ApplicationUser>
     {
       
         public DataContext(DbContextOptions options) : base(options)
@@ -25,6 +26,7 @@ namespace DemoDataAccessLayer.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
             modelBuilder.Entity<Employee>()
                 .Property(e => e.Salary)
                 .HasColumnType("decimal(18,5)");

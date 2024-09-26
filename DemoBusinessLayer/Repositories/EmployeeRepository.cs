@@ -16,14 +16,14 @@ namespace DemoBusinessLayer.Repositories
         {
             
         }
-        public IEnumerable<Employee> SearchByName(string Name)
+        public async Task<IEnumerable<Employee>> GetAllAsync(string Name)
         {
-           return _dataContext.Set<Employee>().Where(e=>e.Name.ToLower().Contains( Name.ToLower())).Include(e=>e.Department).ToList();    
+           return await _dataContext.Set<Employee>().Where(e=>e.Name.ToLower().Contains( Name.ToLower())).Include(e=>e.Department).ToListAsync();    
         }
 
-        public IEnumerable<Employee> GetWithDepartment()
+        public async Task<IEnumerable<Employee>> GetWithDepartmentAsync()
         {
-            return _dataContext.Employees.Include(e => e.Department).ToList();
+            return await _dataContext.Employees.Include(e => e.Department).ToListAsync();
         }
     }
 }

@@ -25,6 +25,6 @@ namespace DemoBusinessLayer.Repositories
 
         public IDepartmentRepository Departments => _departmentRepository;
 
-        public int SaveChanges() => _dataContext.SaveChanges();
+        public async Task<int> SaveChangesAsync() => await _dataContext.SaveChangesAsync();
     }
 }

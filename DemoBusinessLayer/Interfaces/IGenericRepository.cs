@@ -8,10 +8,10 @@ namespace DemoBusinessLayer.Interfaces
 {
     public   interface IGenericRepository<TEntity>
     {
-        void Create(TEntity entitiy);
+        Task AddAsync(TEntity entitiy);
         void Delete(TEntity entitiy);
-        TEntity? Get(int id);
-        IEnumerable<TEntity> GetAll();
+        Task<TEntity?> GetAsync(int id);
+        Task<IEnumerable<TEntity>> GetAllAsync();
         void Update(TEntity entitiy);
     }
 }
